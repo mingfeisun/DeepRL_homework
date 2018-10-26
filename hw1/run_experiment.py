@@ -40,7 +40,7 @@ def main():
         done = False
         steps = 0
         # while not done:
-        while 1:
+        while done:
             action = policy_fn(obs[None,:])
             obs, r, done, _ = env.step(action)
             steps += 1

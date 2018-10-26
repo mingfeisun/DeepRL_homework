@@ -13,12 +13,12 @@ import tensorflow as tf
 
 # Parameters
 learning_rate = 0.1
-num_steps = 200
+num_steps = 500
 batch_size = 128
 
 # Network Parameters
-n_hidden_1 = 64 # 1st layer number of neurons
-n_hidden_2 = 64 # 2nd layer number of neurons
+n_hidden_1 = 128 # 1st layer number of neurons
+n_hidden_2 = 128 # 2nd layer number of neurons
 num_input = 11 
 num_classes = 3
 
@@ -52,6 +52,7 @@ optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
 train_op = optimizer.minimize(loss_op)
 
 regression_loss_mean = tf.reduce_mean(tf.losses.mean_squared_error(Y, prediction))
+tf.summary.scalar('loss', regression_loss_mean)
 
 init = tf.global_variables_initializer()
 
@@ -59,6 +60,7 @@ train_size = len(x_train)
 
 # Start training
 with tf.Session() as sess:
+    train_writer = tf.summary.FileWriter('./logs/train', sess.graph)
 
     # Run the initializer
     sess.run(init)
@@ -67,12 +69,16 @@ with tf.Session() as sess:
         batch_x = x_train[((step-1)*batch_size)%train_size : (step*batch_size)%train_size, :]
         batch_y = y_train[((step-1)*batch_size)%train_size : (step*batch_size)%train_size, :]
 
+        merge = tf.summary.merge_all()
+
         sess.run(train_op, feed_dict={X: batch_x, Y: batch_y})
-        loss, acc = sess.run([loss_op, regression_loss_mean], 
+        summary, loss, acc = sess.run([merge, loss_op, regression_loss_mean], 
             feed_dict={X: batch_x, Y: batch_y})
         print("Step " + str(step) + ", Minibatch Loss= " + \
                 "{:.4f}".format(loss) + ", Training loss= " + \
                 "{:.3f}".format(acc))
+
+        train_writer.add_summary(summary, step)
 
     print("Optimization Finished!")
 
