@@ -40,26 +40,19 @@ biases = {
 
 # Create model
 def neural_net(x):
-    # Hidden fully connected layer with 256 neurons
     layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(x, weights['h1']), biases['b1']))
-    # Hidden fully connected layer with 256 neurons
     layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1, weights['h2']), biases['b2']))
-    # Output fully connected layer with a neuron for each class
     out_layer = tf.matmul(layer_2, weights['out']) + biases['out']
     return out_layer
 
-# Construct model
 prediction = neural_net(X)
 
-# Define loss and optimizer
 loss_op = tf.reduce_mean(tf.losses.mean_squared_error(Y, prediction))
 optimizer = tf.train.AdamOptimizer(learning_rate=learning_rate)
 train_op = optimizer.minimize(loss_op)
 
-# Evaluate model
 regression_loss_mean = tf.reduce_mean(tf.losses.mean_squared_error(Y, prediction))
 
-# Initialize the variables (i.e. assign their default value)
 init = tf.global_variables_initializer()
 
 train_size = len(x_train)
@@ -74,7 +67,6 @@ with tf.Session() as sess:
         batch_x = x_train[((step-1)*batch_size)%train_size : (step*batch_size)%train_size, :]
         batch_y = y_train[((step-1)*batch_size)%train_size : (step*batch_size)%train_size, :]
 
-        # Run optimization op (backprop)
         sess.run(train_op, feed_dict={X: batch_x, Y: batch_y})
         loss, acc = sess.run([loss_op, regression_loss_mean], 
             feed_dict={X: batch_x, Y: batch_y})
@@ -87,3 +79,15 @@ with tf.Session() as sess:
     print("Testing loss:", \
         sess.run(regression_loss_mean, 
             feed_dict={X: x_test, Y: y_test}))
+
+    import os
+    tmp_weights = {"h1": weights['h1'].eval(), 
+                    "h2": weights['h2'].eval(), 
+                    "out": weights['out'].eval()}
+    tmp_biases = {"b1": biases['b1'].eval(), 
+                    "b2": biases['b2'].eval(), 
+                    "out": biases['out'].eval()}
+    with open(os.path.join('bc_policy', 'bc_weights.pkl'), 'wb') as f:
+        pickle.dump(tmp_weights, f, pickle.HIGHEST_PROTOCOL)
+    with open(os.path.join('bc_policy', 'bc_biases.pkl'), 'wb') as f:
+        pickle.dump(tmp_biases, f, pickle.HIGHEST_PROTOCOL)
