@@ -29,7 +29,7 @@ def main():
         tf_util.initialize()
 
         import gym
-        env = gym.make("Hopper-v2")
+        env = gym.make("HalfCheetah-v2")
         max_steps = env.spec.timestep_limit
 
         returns = []
@@ -39,8 +39,8 @@ def main():
         obs = env.reset()
         done = False
         steps = 0
+        while 1:
         # while not done:
-        while done:
             action = policy_fn(obs[None,:])
             obs, r, done, _ = env.step(action)
             steps += 1

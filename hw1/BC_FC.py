@@ -2,10 +2,13 @@
 import pickle
 from sklearn.model_selection import train_test_split
 
-with open('expert_data/Hopper-v2.pkl', 'rb') as fin:
+with open('expert_data/HalfCheetah-v2.pkl', 'rb') as fin:
     data = pickle.load(fin)
     data_x = data["observations"] # 20000 * 11
-    data_y = data["actions"].reshape(20000, 3) # 20000 * 1 * 3
+
+    action_length, _, action_dim = data['actions'].shape
+    data_y = data["actions"].reshape(action_length, action_dim) # 20000 * 1 * 3
+
     x_train, x_test, y_train, y_test = train_test_split(
         data_x, data_y, test_size=0.3, shuffle=False)
 
@@ -16,11 +19,14 @@ learning_rate = 0.1
 num_steps = 500
 batch_size = 128
 
+# input size 
+train_size, train_dim = x_train.shape
+
 # Network Parameters
 n_hidden_1 = 128 # 1st layer number of neurons
 n_hidden_2 = 128 # 2nd layer number of neurons
-num_input = 11 
-num_classes = 3
+num_input = train_dim
+num_classes = action_dim
 
 # tf Graph input
 X = tf.placeholder("float", [None, num_input])
