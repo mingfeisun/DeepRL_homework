@@ -41,7 +41,7 @@ def main():
                 actions.append(action[0])
                 obs, r, done, _ = env.step(action)
                 steps += 1
-                # env.render()
+                env.render()
                 if steps % 100 == 0: print("%i/%i"%(steps, max_steps))
                 if steps >= max_steps:
                     break
@@ -128,7 +128,7 @@ def main():
 
                 merge = tf.summary.merge_all()
 
-                # sess.run(train_op, feed_dict={X: batch_x, Y: batch_y})
+                sess.run(train_op, feed_dict={X: batch_x, Y: batch_y})
                 summary, loss, acc = sess.run([merge, loss_op, regression_loss_mean], 
                     feed_dict={X: batch_x, Y: batch_y})
                 print("Step " + str(step) + ", Minibatch Loss= " + \
